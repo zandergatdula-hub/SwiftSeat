@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SwiftSeat.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251003020235_SwiftSeat")]
+    [Migration("20251003230846_SwiftSeat")]
     partial class SwiftSeat
     {
         /// <inheritdoc />
@@ -60,9 +60,6 @@ namespace SwiftSeat.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EventDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ShowDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("ShowId")

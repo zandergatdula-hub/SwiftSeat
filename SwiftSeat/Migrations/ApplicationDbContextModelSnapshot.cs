@@ -59,9 +59,6 @@ namespace SwiftSeat.Migrations
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("ShowDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("ShowId")
                         .HasColumnType("int");
 

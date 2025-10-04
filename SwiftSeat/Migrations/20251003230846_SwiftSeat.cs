@@ -36,7 +36,6 @@ namespace SwiftSeat.Migrations
                     EventDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Venue = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ShowId = table.Column<int>(type: "int", nullable: false),
-                    ShowDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ShowsEventId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>

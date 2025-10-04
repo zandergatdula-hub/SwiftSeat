@@ -24,10 +24,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Venue)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ShowDate)
-            </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -44,9 +40,6 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Venue)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ShowDate)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.EventId">Edit</a> |

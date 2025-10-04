@@ -18,6 +18,6 @@ namespace SwiftSeat.Models
 
         public List<Shows>? Tickets { get; set; }
         public int ShowId { get; set; }
-        public DateTime ShowDate { get; set; }
+       
     }
 }

@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using SwiftSeat.Models;
 
@@ -18,7 +18,10 @@ namespace SwiftSeat.Controllers
 
         public IActionResult Index()
         {
-            var shows = _context.Shows.ToList(); 
+            var shows = _context.Shows
+            .OrderByDescending(s => s.EventDate) // newest → oldest
+            .ToList();
+
             return View(shows);
         }
 
