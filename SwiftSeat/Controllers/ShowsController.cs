@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SwiftSeat.Models;
+using System.IO;
 
 namespace SwiftSeat.Controllers
 {
@@ -53,7 +54,7 @@ namespace SwiftSeat.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EventId,Title,Description,EventDate,Venue,ShowId,ShowDate")] Shows shows)
+        public async Task<IActionResult> Create([Bind("EventId,Title,Description,EventDate,Venue,PhotoFileName")] Shows shows)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +86,7 @@ namespace SwiftSeat.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,EventDate,Venue,ShowId,ShowDate")] Shows shows)
+        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,EventDate,Venue,PhotoFileName")] Shows shows)
         {
             if (id != shows.EventId)
             {

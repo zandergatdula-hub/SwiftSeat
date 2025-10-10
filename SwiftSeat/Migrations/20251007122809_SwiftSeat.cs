@@ -35,23 +35,12 @@ namespace SwiftSeat.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EventDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Venue = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ShowId = table.Column<int>(type: "int", nullable: false),
-                    ShowsEventId = table.Column<int>(type: "int", nullable: true)
+                    PhotoFileName = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Shows", x => x.EventId);
-                    table.ForeignKey(
-                        name: "FK_Shows_Shows_ShowsEventId",
-                        column: x => x.ShowsEventId,
-                        principalTable: "Shows",
-                        principalColumn: "EventId");
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Shows_ShowsEventId",
-                table: "Shows",
-                column: "ShowsEventId");
         }
 
         /// <inheritdoc />

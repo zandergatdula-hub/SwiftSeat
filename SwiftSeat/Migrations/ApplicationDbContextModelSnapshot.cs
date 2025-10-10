@@ -59,11 +59,8 @@ namespace SwiftSeat.Migrations
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ShowId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ShowsEventId")
-                        .HasColumnType("int");
+                    b.Property<string>("PhotoFileName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
@@ -74,21 +71,7 @@ namespace SwiftSeat.Migrations
 
                     b.HasKey("EventId");
 
-                    b.HasIndex("ShowsEventId");
-
                     b.ToTable("Shows");
-                });
-
-            modelBuilder.Entity("SwiftSeat.Models.Shows", b =>
-                {
-                    b.HasOne("SwiftSeat.Models.Shows", null)
-                        .WithMany("Tickets")
-                        .HasForeignKey("ShowsEventId");
-                });
-
-            modelBuilder.Entity("SwiftSeat.Models.Shows", b =>
-                {
-                    b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618
         }

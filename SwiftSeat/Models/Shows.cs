@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SwiftSeat.Models
 {
@@ -16,8 +16,10 @@ namespace SwiftSeat.Models
 
         public string Venue { get; set; } = string.Empty;
 
-        public List<Shows>? Tickets { get; set; }
-        public int ShowId { get; set; }
-       
+        [NotMapped]
+        [Display(Name = "Upload Photo")]
+        public IFormFile? PhotoFile { get; set; }
+
+        public string? PhotoFileName { get; set; }
     }
 }

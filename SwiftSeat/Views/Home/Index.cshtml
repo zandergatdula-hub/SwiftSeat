@@ -13,6 +13,7 @@
         <table class="table table-bordered table-striped table-hover align-middle">
             <thead class="table-dark">
                 <tr>
+                    <th>Photo</th>
                     <th>Title</th>
                     <th>Description</th>
                     <th>Event Date</th>
@@ -23,6 +24,11 @@
                 @foreach (var show in Model)
                 {
                     <tr>
+                        <td class="text-center align-middle">
+                            <img src="~/photos/@show.PhotoFileName"
+                                 alt="@show.Title"
+                                 style="width: 160px; height: 120px; object-fit: contain; " />
+                        </td>
                         <td>@show.Title</td>
                         <td>@show.Description</td>
                         <td>@show.EventDate.ToShortDateString()</td>

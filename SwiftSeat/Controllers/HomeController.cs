@@ -19,7 +19,7 @@ namespace SwiftSeat.Controllers
         public IActionResult Index()
         {
             var shows = _context.Shows
-            .OrderByDescending(s => s.EventDate) // newest → oldest
+            .OrderByDescending(s => s.EventDate)
             .ToList();
 
             return View(shows);

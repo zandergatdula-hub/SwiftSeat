@@ -1,6 +1,12 @@
 html {
   font-size: 14px;
 }
+.show-photo {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+
 
 @media (min-width: 768px) {
   html {
