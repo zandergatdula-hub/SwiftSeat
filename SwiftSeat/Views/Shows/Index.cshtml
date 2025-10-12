@@ -4,7 +4,7 @@
     ViewData["Title"] = "Shows";
 }
 
-<h1>📺 Shows</h1>
+<h1>Shows</h1>
 
 <p>
     <a asp-action="Create">Create New Shows</a>
@@ -27,6 +27,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.PhotoFileName)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PhotoFile)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -47,6 +50,11 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PhotoFileName)
+            </td>
+            <td class="align-middle">
+                <img src="~/photos/@item.PhotoFileName"
+                     alt="@item.Title"
+                     style="width: 160px; height: 120px; object-fit: contain; " />
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.EventId">Edit</a> |

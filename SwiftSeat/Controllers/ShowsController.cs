@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SwiftSeat.Models;
-using System.IO;
 
 namespace SwiftSeat.Controllers
 {
@@ -54,15 +54,34 @@ namespace SwiftSeat.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EventId,Title,Description,EventDate,Venue,PhotoFileName")] Shows shows)
+        public async Task<IActionResult> Create(Shows show)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(shows);
+                if (show.PhotoFile != null)
+                {
+                    // Get the file name
+                    var fileName = Path.GetFileName(show.PhotoFile.FileName);
+
+                    // Set the path to wwwroot/photos
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/photos", fileName);
+
+                    // Save the file
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await show.PhotoFile.CopyToAsync(stream);
+                    }
+
+                    // Set the PhotoFileName property
+                    show.PhotoFileName = fileName;
+                }
+                  
+                // Save to database (add and save changes)
+                _context.Add(show);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(shows);
+            return View(show);
         }
 
         // GET: Shows/Edit/5
@@ -86,7 +105,7 @@ namespace SwiftSeat.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,EventDate,Venue,PhotoFileName")] Shows shows)
+        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,EventDate,Venue,PhotoFile,PhotoFileName")] Shows shows)
         {
             if (id != shows.EventId)
             {
@@ -97,6 +116,20 @@ namespace SwiftSeat.Controllers
             {
                 try
                 {
+                    // Handle file upload
+                    if (shows.PhotoFile != null)
+                    {
+                        var fileName = Path.GetFileName(shows.PhotoFile.FileName);
+                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/photos", fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await shows.PhotoFile.CopyToAsync(stream);
+                        }
+
+                        shows.PhotoFileName = fileName;
+                    }
+
                     _context.Update(shows);
                     await _context.SaveChangesAsync();
                 }

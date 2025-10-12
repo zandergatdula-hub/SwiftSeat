@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SwiftSeat.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251007122809_SwiftSeat")]
+    [Migration("20251011001634_SwiftSeat")]
     partial class SwiftSeat
     {
         /// <inheritdoc />
