@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +11,7 @@ using SwiftSeat.Models;
 
 namespace SwiftSeat.Controllers
 {
+    [Authorize]
     public class ShowsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -60,9 +63,33 @@ namespace SwiftSeat.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (shows.PhotoFile != null)
+                {
+                    // Get the file name
+                    var fileName = Path.GetFileName(shows.PhotoFile.FileName);
+
+                    // Set the path to wwwroot/photos
+                    var photosPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/photos");
+                    if (!Directory.Exists(photosPath))
+                    {
+                        Directory.CreateDirectory(photosPath);
+                    }
+                    var filePath = Path.Combine(photosPath, fileName);
+
+                    // Save the file
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await shows.PhotoFile.CopyToAsync(stream);
+                    }
+
+                    // Set the PhotoFileName property
+                    shows.PhotoFileName = fileName;
+                }
+
+                // Save to database (add and save changes)
                 _context.Add(shows);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index" , "Home");
+                return RedirectToAction(nameof(Index));
             }
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", shows.CategoryId);
             return View(shows);
@@ -90,7 +117,7 @@ namespace SwiftSeat.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,EventDate,Venue,PhotoFileName,Owner,Created,CategoryId,CategoryName")] Shows shows)
+        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,EventDate,Venue,PhotoFileName,Owner,Created,CategoryId,CategoryName,PhotoFile")] Shows shows)
         {
             if (id != shows.EventId)
             {
@@ -99,6 +126,29 @@ namespace SwiftSeat.Controllers
 
             if (ModelState.IsValid)
             {
+                if (shows.PhotoFile != null)
+                {
+                    // Get the file name
+                    var fileName = Path.GetFileName(shows.PhotoFile.FileName);
+
+                    // Set the path to wwwroot/photos
+                    var photosPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/photos");
+                    if (!Directory.Exists(photosPath))
+                    {
+                        Directory.CreateDirectory(photosPath);
+                    }
+                    var filePath = Path.Combine(photosPath, fileName);
+
+                    // Save the file
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await shows.PhotoFile.CopyToAsync(stream);
+                    }
+
+                    // Set the PhotoFileName property
+                    shows.PhotoFileName = fileName;
+                }
+
                 try
                 {
                     _context.Update(shows);
