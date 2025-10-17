@@ -1,0 +1,28 @@
+﻿@{
+    <h1>Login</h1>
+
+}
+@if (ViewBag.ErrorMessage != null)
+{
+    <p class="alert alert-danger">
+        @ViewBag.ErrorMessage
+    </p>
+}
+
+<form asp-action="Login" class="w-25">
+
+    <div class="m-3">
+        <label for="Username" class-label>Username</label>
+        <input type="text" id="username" name="username" class="form-control" />
+    </div>
+
+   <div class="m-3">
+       <label for="password" class="control-label" >Password</label>\
+        <input type="password" name="password" class="form-control" />
+   </div>
+
+    <div class="mb-3">
+        <input type="submit" value="Login" class="btn btn-primary" />
+    </div>
+
+</form>

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SwiftSeat.Models;
 
 namespace SwiftSeat.Controllers
@@ -19,6 +20,7 @@ namespace SwiftSeat.Controllers
         public IActionResult Index()
         {
             var shows = _context.Shows
+            .Include(s => s.Category)
             .OrderByDescending(s => s.EventDate)
             .ToList();
 

@@ -1,4 +1,5 @@
-﻿@{
+﻿@model IEnumerable<SwiftSeat.Models.Shows>
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -7,17 +8,25 @@
 </div>
 
 <div class="container">
-    <h2 class="mb-4 text-md-start"> 📺 Shows</h2>
+    <h2 class="mb-4 text-md-start text-primary fw-bold text-uppercase">📺 Shows</h2>
+    <p>
+        <a asp-controller="Shows" asp-action="Create" class="btn btn-success fw-bold mb-3">Create New Show</a>
+    </p>
 
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover align-middle">
             <thead class="table-dark">
                 <tr>
-                    <th>Photo</th>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Event Date</th>
-                    <th>Venue</th>
+                    <th class="px-3 py-2">Photo</th>
+                    <th class="px-3 py-2">Title</th>
+                    <th class="px-3 py-2">Description</th>
+                    <th class="px-3 py-2">Event Date</th>
+                    <th class="px-3 py-2">Venue</th>
+                    <th class="px-3 py-2">Owner</th>
+                    <th class="px-3 py-2">Created</th>
+                    <th class="px-3 py-2">Category</th>
+                    <th class="px-3 py-2"> </th>
+                   
                 </tr>
             </thead>
             <tbody>
@@ -27,12 +36,21 @@
                         <td class="text-center align-middle">
                             <img src="~/photos/@show.PhotoFileName"
                                  alt="@show.Title"
-                                 style="width: 160px; height: 120px; object-fit: contain; " />
+                                 class="img-thumbnail"
+                                 style="width: 160px; height: 120px; object-fit: contain;" />
                         </td>
-                        <td>@show.Title</td>
-                        <td>@show.Description</td>
-                        <td>@show.EventDate.ToShortDateString()</td>
-                        <td>@show.Venue</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => show.Title)</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => show.Description)</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => show.EventDate)</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => show.Venue)</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => show.Owner)</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => show.Created)</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => show.Category.Name)</td>
+                        <td class="px-3 py-2 text-center">
+                            <a asp-controller="Shows" asp-action="Edit" asp-route-id="@show.EventId" class="btn btn-primary btn-sm fw-bold me-1">Edit</a>
+                            <a asp-controller="Shows" asp-action="Details" asp-route-id="@show.EventId" class="btn btn-info btn-sm fw-bold me-1 text-white">Details</a>
+                            <a asp-controller="Shows" asp-action="Delete" asp-route-id="@show.EventId" class="btn btn-danger btn-sm fw-bold">Delete</a>
+                        </td>
                     </tr>
                 }
             </tbody>

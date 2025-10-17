@@ -21,27 +21,38 @@ namespace SwiftSeat.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("SwiftSeat.Models.Customer", b =>
+            modelBuilder.Entity("SwiftSeat.Models.Categories", b =>
                 {
-                    b.Property<int>("CustomerId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Email")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                    b.HasKey("Id");
 
-                    b.HasKey("CustomerId");
+                    b.ToTable("Categories");
 
-                    b.ToTable("Customers");
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Music"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Sports"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Theater"
+                        });
                 });
 
             modelBuilder.Entity("SwiftSeat.Models.Shows", b =>
@@ -52,12 +63,22 @@ namespace SwiftSeat.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventId"));
 
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Owner")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhotoFileName")
                         .HasColumnType("nvarchar(max)");
@@ -71,7 +92,20 @@ namespace SwiftSeat.Migrations
 
                     b.HasKey("EventId");
 
+                    b.HasIndex("CategoryId");
+
                     b.ToTable("Shows");
+                });
+
+            modelBuilder.Entity("SwiftSeat.Models.Shows", b =>
+                {
+                    b.HasOne("SwiftSeat.Models.Categories", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
                 });
 #pragma warning restore 612, 618
         }

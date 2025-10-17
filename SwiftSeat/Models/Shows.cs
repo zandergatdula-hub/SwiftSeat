@@ -6,7 +6,7 @@ namespace SwiftSeat.Models
     public class Shows
     {
         [Key]
-        public int EventId { get; set; }
+        public int EventId { get; set; }    
 
         public string? Title { get; set; }
 
@@ -21,5 +21,16 @@ namespace SwiftSeat.Models
         public IFormFile? PhotoFile { get; set; }
 
         public string? PhotoFileName { get; set; }
+
+        public string Owner { get; set; } = string.Empty;
+
+        public DateTime Created {  get; set; }
+
+        // Foreign key for Category
+        [Display(Name = "Category")]
+        public int CategoryId { get; set; }
+
+        // Navigation property
+        public Categories? Category { get; set; }
     }
 }

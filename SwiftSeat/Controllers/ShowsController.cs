@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +21,8 @@ namespace SwiftSeat.Controllers
         // GET: Shows
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Shows.ToListAsync());
+            var applicationDbContext = _context.Shows.Include(s => s.Category);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Shows/Details/5
@@ -34,6 +34,7 @@ namespace SwiftSeat.Controllers
             }
 
             var shows = await _context.Shows
+                .Include(s => s.Category)
                 .FirstOrDefaultAsync(m => m.EventId == id);
             if (shows == null)
             {
@@ -46,6 +47,7 @@ namespace SwiftSeat.Controllers
         // GET: Shows/Create
         public IActionResult Create()
         {
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
             return View();
         }
 
@@ -54,34 +56,16 @@ namespace SwiftSeat.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Shows show)
+        public async Task<IActionResult> Create([Bind("EventId,Title,Description,EventDate,Venue,PhotoFileName,Owner,Created,CategoryId,CategoryName")] Shows shows)
         {
             if (ModelState.IsValid)
             {
-                if (show.PhotoFile != null)
-                {
-                    // Get the file name
-                    var fileName = Path.GetFileName(show.PhotoFile.FileName);
-
-                    // Set the path to wwwroot/photos
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/photos", fileName);
-
-                    // Save the file
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await show.PhotoFile.CopyToAsync(stream);
-                    }
-
-                    // Set the PhotoFileName property
-                    show.PhotoFileName = fileName;
-                }
-                  
-                // Save to database (add and save changes)
-                _context.Add(show);
+                _context.Add(shows);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index" , "Home");
             }
-            return View(show);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", shows.CategoryId);
+            return View(shows);
         }
 
         // GET: Shows/Edit/5
@@ -97,6 +81,7 @@ namespace SwiftSeat.Controllers
             {
                 return NotFound();
             }
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", shows.CategoryId);
             return View(shows);
         }
 
@@ -105,7 +90,7 @@ namespace SwiftSeat.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,EventDate,Venue,PhotoFile,PhotoFileName")] Shows shows)
+        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,EventDate,Venue,PhotoFileName,Owner,Created,CategoryId,CategoryName")] Shows shows)
         {
             if (id != shows.EventId)
             {
@@ -116,20 +101,6 @@ namespace SwiftSeat.Controllers
             {
                 try
                 {
-                    // Handle file upload
-                    if (shows.PhotoFile != null)
-                    {
-                        var fileName = Path.GetFileName(shows.PhotoFile.FileName);
-                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/photos", fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await shows.PhotoFile.CopyToAsync(stream);
-                        }
-
-                        shows.PhotoFileName = fileName;
-                    }
-
                     _context.Update(shows);
                     await _context.SaveChangesAsync();
                 }
@@ -144,8 +115,9 @@ namespace SwiftSeat.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Home");
             }
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", shows.CategoryId);
             return View(shows);
         }
 
@@ -158,6 +130,7 @@ namespace SwiftSeat.Controllers
             }
 
             var shows = await _context.Shows
+                .Include(s => s.Category)
                 .FirstOrDefaultAsync(m => m.EventId == id);
             if (shows == null)
             {
@@ -179,7 +152,7 @@ namespace SwiftSeat.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Home");
         }
 
         private bool ShowsExists(int id)
