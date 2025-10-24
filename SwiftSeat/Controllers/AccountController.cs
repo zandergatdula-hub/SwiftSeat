@@ -29,7 +29,7 @@ namespace SwiftSeat.Controllers
                 var claims = new List<Claim> // creating a list of claims
                 {
                     new Claim(ClaimTypes.NameIdentifier, "admin"), // the unique ID 
-                    new Claim(ClaimTypes.Name,"admin123") // human readable name 
+                    new Claim(ClaimTypes.Name,"Administrator") // human readable name 
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme); // creating the indentity for claims 
@@ -46,8 +46,8 @@ namespace SwiftSeat.Controllers
                     return RedirectToAction("Index", "Home"); // redirect to the home page
                 }
             }
-            ViewBag.ErrorMessage = "Invalid username or password";
-            return RedirectToAction("Index", "Home");
+            ViewBag.ErrorMessage = "Invalid username or password";// this message appear when you enter the wrong username or password
+            return View();
 
         }
 
@@ -61,9 +61,9 @@ namespace SwiftSeat.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogoutConfirmed()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);// this will deletes the authetication cookie 
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");// this will redirect to the login
         }
 
     }
