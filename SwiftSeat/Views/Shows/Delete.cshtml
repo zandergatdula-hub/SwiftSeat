@@ -23,6 +23,21 @@
             <dt class="col-sm-4 fw-semibold">Venue</dt>
             <dd class="col-sm-8">@Html.DisplayFor(model => model.Venue)</dd>
 
+            <dt class="col-sm-4 fw-semibold">Photo</dt>
+            <dd class="col-sm-8">
+                @if (!string.IsNullOrEmpty(Model.PhotoFileName))
+                {
+                    <img src="@(Model.PhotoFileName.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? Model.PhotoFileName : Url.Content("~/photos/" + Model.PhotoFileName))"
+                         alt="@Model.Title"
+                         class="img-thumbnail shadow-sm"
+                         style="width:180px; height:130px; object-fit:contain;" />
+                }
+                else
+                {
+                    <img src="~/images/placeholder.png" alt="No Image" class="img-fluid rounded mb-4" style="width:180px; height:130px; object-fit:contain;" />
+                }
+            </dd>
+
             <dt class="col-sm-4 fw-semibold">Photo File Name</dt>
             <dd class="col-sm-8">@Html.DisplayFor(model => model.PhotoFileName)</dd>
 
@@ -38,6 +53,8 @@
             <dt class="col-sm-4 fw-semibold">Category</dt>
             <dd class="col-sm-8">@Html.DisplayFor(model => model.Category.Id)</dd>
         </dl>
+
+       
 
         <form asp-action="Delete">
             <input type="hidden" asp-for="EventId" />

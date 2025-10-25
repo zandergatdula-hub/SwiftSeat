@@ -34,10 +34,17 @@
                 {
                     <tr>
                         <td class="text-center align-middle">
-                            <img src="~/photos/@show.PhotoFileName"
-                                 alt="@show.Title"
-                                 class="img-thumbnail"
-                                 style="width: 160px; height: 120px; object-fit: contain;" />
+                            @if (!string.IsNullOrEmpty(show.PhotoFileName))
+                            {
+                                <img src="@(show.PhotoFileName.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? show.PhotoFileName : Url.Content("~/photos/" + show.PhotoFileName))"
+                                     alt="@show.Title"
+                                     class="img-thumbnail shadow-sm"
+                                     style="width:180px; height:130px; object-fit:contain;" />
+                            }
+                            else
+                            {
+                                <img src="~/images/placeholder.png" alt="No Image" class="img-thumbnail shadow-sm" style="width:180px; height:130px; object-fit:contain;" />
+                            }
                         </td>
                         <td class="px-3 py-2">@Html.DisplayFor(modelItem => show.Title)</td>
                         <td class="px-3 py-2">@Html.DisplayFor(modelItem => show.Description)</td>

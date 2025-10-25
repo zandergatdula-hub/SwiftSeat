@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +13,17 @@ namespace SwiftSeat.Controllers
     public class ShowsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly BlobContainerClient _containerClient;
 
-        public ShowsController(ApplicationDbContext context)
+        public ShowsController(ApplicationDbContext context, IConfiguration configuration)
         {
+           _configuration = configuration;
             _context = context;
+
+            var connectionString = _configuration["AzureStorage"];
+            var cotainerName = "swiftseat-uploads";
+            _containerClient = new BlobContainerClient(connectionString, cotainerName);
         }
 
         // GET: Shows
@@ -65,31 +70,28 @@ namespace SwiftSeat.Controllers
             {
                 if (shows.PhotoFile != null)
                 {
-                    // Get the file name
-                    var fileName = Path.GetFileName(shows.PhotoFile.FileName);
+                 
+                    /// Upload the file to Blob storage
 
-                    // Set the path to wwwroot/photos
-                    var photosPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/photos");
-                    if (!Directory.Exists(photosPath))
-                    {
-                        Directory.CreateDirectory(photosPath);
-                    }
-                    var filePath = Path.Combine(photosPath, fileName);
+                    var uploadFile = shows.PhotoFile; 
 
-                    // Save the file
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    string blobName = Guid.NewGuid().ToString()+ "_" + uploadFile.FileName; // this is the unique file name that will save in Azure 
+
+                    var blobClient = _containerClient.GetBlobClient(blobName); // this will just create an instance for blobName
+
+                    using (var stream = uploadFile.OpenReadStream()) // this will open the read stream for the uploaded file,
+                    // so that it will asynchornously uploads it ito the Azure Blob Storage
                     {
-                        await shows.PhotoFile.CopyToAsync(stream);
+                        await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = uploadFile.ContentType }); // The BlobHttpHeaders is just to sets the content type
                     }
 
-                    // Set the PhotoFileName property
-                    shows.PhotoFileName = fileName;
+                    shows.PhotoFileName = blobClient.Uri.ToString(); // this will get the URL of the Blob File
                 }
 
                 // Save to database (add and save changes)
                 _context.Add(shows);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Home");
             }
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", shows.CategoryId);
             return View(shows);
@@ -126,29 +128,34 @@ namespace SwiftSeat.Controllers
 
             if (ModelState.IsValid)
             {
+                // If a new photo is uploaded
                 if (shows.PhotoFile != null)
                 {
-                    // Get the file name
-                    var fileName = Path.GetFileName(shows.PhotoFile.FileName);
+                    var newBlobName = Guid.NewGuid() + "_" + shows.PhotoFile.FileName; // Generate a unique blob name
+                 
+                    shows.PhotoFileName = newBlobName; // Set the new filename
 
-                    // Set the path to wwwroot/photos
-                    var photosPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/photos");
-                    if (!Directory.Exists(photosPath))
-                    {
-                        Directory.CreateDirectory(photosPath);
-                    }
-                    var filePath = Path.Combine(photosPath, fileName);
+                    var newBlobClient = _containerClient.GetBlobClient(newBlobName); // Create blob client for new file
+                  
+                    using (var stream = shows.PhotoFile.OpenReadStream())   // Upload new file to Azure Blob Storage
+                        await newBlobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = shows.PhotoFile.ContentType });
+                    
+                    shows.PhotoFileName = newBlobClient.Uri.ToString(); // it updates the model in the URL 
 
-                    // Save the file
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await shows.PhotoFile.CopyToAsync(stream);
-                    }
-
-                    // Set the PhotoFileName property
-                    shows.PhotoFileName = fileName;
+                    // Delete old blob if it exists
+                    var existingShow = await _context.Shows.AsNoTracking().FirstOrDefaultAsync(s => s.EventId == id);
+                    if (!string.IsNullOrEmpty(existingShow?.PhotoFileName) && existingShow.PhotoFileName.StartsWith("http")) // this will just fectches the existing show from the Azure Storage
+                        if (Uri.TryCreate(existingShow.PhotoFileName, UriKind.Absolute, out var oldUri)) // it check if the existingShow.PhotoFilename is a valid URL
+                            await _containerClient.GetBlobClient(Path.GetFileName(oldUri.AbsolutePath)).DeleteIfExistsAsync(); // if it's valid, this will extracts the filename from the URL 
+                }
+                else
+                {
+                     // if there is no new photo it will just keep the old photo
+                    var existingShow = await _context.Shows.AsNoTracking().FirstOrDefaultAsync(s => s.EventId == id);
+                    shows.PhotoFileName = existingShow?.PhotoFileName;
                 }
 
+                // Save changes to database
                 try
                 {
                     _context.Update(shows);
@@ -160,13 +167,12 @@ namespace SwiftSeat.Controllers
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
+
                 return RedirectToAction("Index", "Home");
             }
+
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", shows.CategoryId);
             return View(shows);
         }
@@ -198,10 +204,25 @@ namespace SwiftSeat.Controllers
             var shows = await _context.Shows.FindAsync(id);
             if (shows != null)
             {
-                _context.Shows.Remove(shows);
-            }
+                // Delete image from Azure Blob Storage if it exists
+                if (!string.IsNullOrEmpty(shows.PhotoFileName))
+                {
+                    string blobName;
+                    if (Uri.TryCreate(shows.PhotoFileName, UriKind.Absolute, out var uri))
+                    {
+                        blobName = Path.GetFileName(uri.AbsolutePath);
+                    }
+                    else
+                    {
+                        blobName = shows.PhotoFileName;
+                    }
+                    var blobClient = _containerClient.GetBlobClient(blobName);
+                    await blobClient.DeleteIfExistsAsync();
+                }
 
-            await _context.SaveChangesAsync();
+                _context.Shows.Remove(shows);
+                await _context.SaveChangesAsync();
+            }
             return RedirectToAction("Index", "Home");
         }
 
