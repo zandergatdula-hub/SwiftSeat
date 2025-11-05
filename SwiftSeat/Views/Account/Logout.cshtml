@@ -10,10 +10,15 @@
                     <img src="~/Logo/SwiftSeat Logo.jpg" alt="SwiftSeat Logo" style="height:40px;" class="me-2" />
                     <span class="fw-bold fs-1 text-center">LOGOUT</span>
                 </div>
-                <p class="text-center text-secondary mb-4">You have been successfully logged out.</p>
-                <div class="d-grid">
-                    <a href="~/Account/Login" class="btn btn-primary btn-lg fw-bold">Back to Login</a>
-                </div>
+                <p class="text-center text-secondary mb-4">Are you sure you want to logout?</p>
+                <form asp-action="LogoutConfirmed" method="post">
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold">Logout</button>
+                    </div>
+                    <div class="text-center">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-link">Back to Home</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
