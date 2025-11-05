@@ -1,28 +1,34 @@
 ﻿@{
-    <h1>Login</h1>
-
-}
-@if (ViewBag.ErrorMessage != null)
-{
-    <p class="alert alert-danger">
-        @ViewBag.ErrorMessage
-    </p>
+    ViewData["Title"] = "Login";
 }
 
-<form asp-action="Login" class="w-25">
+<div class="container d-flex align-items-md-center justify-content-center mt-md-5">
+    <div class="w-100" style="max-width: 400px;">
+        <div class="card shadow border-0">
+            <div class="card-body p-5">
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    <img src="~/Logo/SwiftSeat Logo.jpg" alt="SwiftSeat Logo" style="height:40px;" class="me-2" />
+                    <span class="fw-bold fs-1 text-center">LOGIN</span>
+                </div>
+                <p class="text-center text-secondary mb-4">Please enter your login and password!</p>
 
-    <div class="m-3">
-        <label for="Username" class-label>Username</label>
-        <input type="text" id="username" name="username" class="form-control" />
+                @if (ViewBag.ErrorMessage != null)
+                {
+                    <p class="alert alert-danger text-center">@ViewBag.ErrorMessage</p>
+                }
+
+                <form asp-action="Login" method="post">
+                    <div class="mb-3">
+                        <input type="text" id="username" name="username" class="form-control form-control-lg" placeholder="Email" required />
+                    </div>
+                    <div class="mb-4">
+                        <input type="password" id="password" name="password" class="form-control form-control-lg" placeholder="Password" required />
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold">LOGIN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-
-   <div class="m-3">
-       <label for="password" class="control-label" >Password</label>
-        <input type="password" name="password" class="form-control" />
-   </div>
-   
-    <div class="mb-3">
-        <input type="submit" value="Login" class="btn btn-primary" />
-    </div>
-
-</form>
+</div>
