@@ -16,7 +16,8 @@ namespace SwiftSeat.Controllers
         }
         public IActionResult Login()  // GET: /Account/Login
         {
-            string username = _configuration["username"];
+            string username = _configuration["SwiftSeat_Username"];
+            string password = _configuration["SwiftSeat_Password"];
             return View();
         }
 
@@ -24,7 +25,7 @@ namespace SwiftSeat.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string userName, string password, string returnUrl)
         {
-            if (userName == _configuration["username"] && password == _configuration["password"]) // to validate username and password
+            if (userName == _configuration["SwiftSeat_Username"] && password == _configuration["SwiftSeat_Password"]) // to validate username and password
             {
                 var claims = new List<Claim> // creating a list of claims
                 {

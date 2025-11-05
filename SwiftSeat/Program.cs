@@ -19,7 +19,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.")));
+         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 // 
 builder.Services.AddControllersWithViews();
 

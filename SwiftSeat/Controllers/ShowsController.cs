@@ -21,7 +21,7 @@ namespace SwiftSeat.Controllers
            _configuration = configuration;
             _context = context;
 
-            var connectionString = _configuration["AzureStorage"];
+            var connectionString = _configuration["SwiftSeat_Storage"];
             var cotainerName = "swiftseat-uploads";
             _containerClient = new BlobContainerClient(connectionString, cotainerName);
         }
@@ -64,35 +64,34 @@ namespace SwiftSeat.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EventId,Title,Description,EventDate,Venue,PhotoFileName,Owner,Created,CategoryId,CategoryName")] Shows shows)
+        public async Task<IActionResult> Create([Bind("Title,Description,EventDate,Venue,Owner,CategoryId,PhotoFile,Created")] Shows shows)
         {
             if (ModelState.IsValid)
             {
+                // Set Created to now
+                shows.Created = DateTime.Now;
+
+                // Handle photo upload
                 if (shows.PhotoFile != null)
                 {
-                 
-                    /// Upload the file to Blob storage
+                    var uniqueFileName = Guid.NewGuid() + "_" + shows.PhotoFile.FileName;
+                    var blobClient = _containerClient.GetBlobClient(uniqueFileName);
 
-                    var uploadFile = shows.PhotoFile; 
+                    using (var stream = shows.PhotoFile.OpenReadStream())
+                        await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = shows.PhotoFile.ContentType });
 
-                    string blobName = Guid.NewGuid().ToString()+ "_" + uploadFile.FileName; // this is the unique file name that will save in Azure 
-
-                    var blobClient = _containerClient.GetBlobClient(blobName); // this will just create an instance for blobName
-
-                    using (var stream = uploadFile.OpenReadStream()) // this will open the read stream for the uploaded file,
-                    // so that it will asynchornously uploads it ito the Azure Blob Storage
-                    {
-                        await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = uploadFile.ContentType }); // The BlobHttpHeaders is just to sets the content type
-                    }
-
-                    shows.PhotoFileName = blobClient.Uri.ToString(); // this will get the URL of the Blob File
+                    shows.PhotoFileName = blobClient.Uri.ToString();
+                }
+                else
+                {
+                    shows.PhotoFileName = null;
                 }
 
-                // Save to database (add and save changes)
                 _context.Add(shows);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index", "Home");
             }
+
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", shows.CategoryId);
             return View(shows);
         }
@@ -144,7 +143,7 @@ namespace SwiftSeat.Controllers
 
                     // Delete old blob if it exists
                     var existingShow = await _context.Shows.AsNoTracking().FirstOrDefaultAsync(s => s.EventId == id);
-                    if (!string.IsNullOrEmpty(existingShow?.PhotoFileName) && existingShow.PhotoFileName.StartsWith("http")) // this will just fectches the existing show from the Azure Storage
+                    if (!string.IsNullOrEmpty(existingShow?.PhotoFileName) && existingShow.PhotoFileName.StartsWith("http")) // this will just fecthes the existing show from the Azure Storage
                         if (Uri.TryCreate(existingShow.PhotoFileName, UriKind.Absolute, out var oldUri)) // it check if the existingShow.PhotoFilename is a valid URL
                             await _containerClient.GetBlobClient(Path.GetFileName(oldUri.AbsolutePath)).DeleteIfExistsAsync(); // if it's valid, this will extracts the filename from the URL 
                 }
@@ -161,7 +160,8 @@ namespace SwiftSeat.Controllers
                     _context.Update(shows);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException) // this will catch if the another user modified or delete
+                                                     // the same shows in the database 
                 {
                     if (!ShowsExists(shows.EventId))
                     {
@@ -208,16 +208,18 @@ namespace SwiftSeat.Controllers
                 if (!string.IsNullOrEmpty(shows.PhotoFileName))
                 {
                     string blobName;
-                    if (Uri.TryCreate(shows.PhotoFileName, UriKind.Absolute, out var uri))
+                    if (Uri.TryCreate(shows.PhotoFileName, UriKind.Absolute, out var uri)) // this will check if the URl is 
                     {
-                        blobName = Path.GetFileName(uri.AbsolutePath);
+                        blobName = Path.GetFileName(uri.AbsolutePath); // Extracts the fimename to the URL path
                     }
                     else
                     {
                         blobName = shows.PhotoFileName;
                     }
-                    var blobClient = _containerClient.GetBlobClient(blobName);
-                    await blobClient.DeleteIfExistsAsync();
+                    var blobClient = _containerClient.GetBlobClient(blobName); // Will create an client object for the blobClient
+                                                                              // in the Azure container 
+                    await blobClient.DeleteIfExistsAsync(); // this will Asynchronously deletes the blob from the
+                                                            // Azure Blob Storage 
                 }
 
                 _context.Shows.Remove(shows);
