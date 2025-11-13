@@ -18,7 +18,7 @@
             <dd class="col-sm-8">@Html.DisplayFor(model => model.Description)</dd>
 
             <dt class="col-sm-4 fw-semibold">Event Date</dt>
-            <dd class="col-sm-8">@Html.DisplayFor(model => model.EventDate)</dd>
+            <dd class="col-sm-8">@Model.EventDate.ToString("MM/dd/yyyy h:mm tt")</dd>
 
             <dt class="col-sm-4 fw-semibold">Venue</dt>
             <dd class="col-sm-8">@Html.DisplayFor(model => model.Venue)</dd>
@@ -42,11 +42,13 @@
             <dt class="col-sm-4 fw-semibold">Owner</dt>
             <dd class="col-sm-8">@Html.DisplayFor(model => model.Owner)</dd>
 
+            <dt class="col-sm-4 fw-semibold">Created</dt>
+            <dd class="col-sm-8">@Model.Created.ToString("MM/dd/yyyy h:mm tt")</dd>
           
             <dt class="col-sm-4 fw-semibold">Category</dt>
             <dd class="col-sm-8">@Html.DisplayFor(model => model.Category.Name)</dd>
 
-            <dt class="col-sm-4 fw-semibold">Category</dt>
+            <dt class="col-sm-4 fw-semibold">CategoryID</dt>
             <dd class="col-sm-8">@Html.DisplayFor(model => model.Category.Id)</dd>
         </dl>
 

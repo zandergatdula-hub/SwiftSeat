@@ -118,50 +118,62 @@ namespace SwiftSeat.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,EventDate,Venue,PhotoFileName,Owner,Created,CategoryId,CategoryName,PhotoFile")] Shows shows)
+        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,EventDate,Venue,PhotoFileName,Owner,CategoryId,CategoryName,PhotoFile")] Shows shows)
         {
             if (id != shows.EventId)
             {
                 return NotFound();
             }
 
+            // Fetch the original show from the database
+            var originalShow = await _context.Shows.AsNoTracking().FirstOrDefaultAsync(s => s.EventId == id);
+            if (originalShow == null)
+            {
+                return NotFound();
+            }
+
+            // Always preserve the original Created date
+            shows.Created = originalShow.Created;
+
+            // If a new photo is uploaded
+            if (shows.PhotoFile != null)
+            {
+                var newBlobName = Guid.NewGuid() + "_" + shows.PhotoFile.FileName;
+                shows.PhotoFileName = newBlobName;
+
+                var newBlobClient = _containerClient.GetBlobClient(newBlobName);
+
+                using (var stream = shows.PhotoFile.OpenReadStream())
+                    await newBlobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = shows.PhotoFile.ContentType });
+
+                shows.PhotoFileName = newBlobClient.Uri.ToString();
+
+                // Delete old blob if it exists
+                if (!string.IsNullOrEmpty(originalShow.PhotoFileName) && originalShow.PhotoFileName.StartsWith("http"))
+                {
+                    // Extract the blob name from the URL using string operations
+                    var lastSlashIndex = originalShow.PhotoFileName.LastIndexOf('/');
+                    var blobName = lastSlashIndex >= 0
+                        ? originalShow.PhotoFileName.Substring(lastSlashIndex + 1)
+                        : originalShow.PhotoFileName;
+
+                    var oldBlobClient = _containerClient.GetBlobClient(blobName);
+                    await oldBlobClient.DeleteIfExistsAsync();
+                }
+            }
+            else
+            {
+                shows.PhotoFileName = originalShow.PhotoFileName;
+            }
+
             if (ModelState.IsValid)
             {
-                // If a new photo is uploaded
-                if (shows.PhotoFile != null)
-                {
-                    var newBlobName = Guid.NewGuid() + "_" + shows.PhotoFile.FileName; // Generate a unique blob name
-                 
-                    shows.PhotoFileName = newBlobName; // Set the new filename
-
-                    var newBlobClient = _containerClient.GetBlobClient(newBlobName); // Create blob client for new file
-                  
-                    using (var stream = shows.PhotoFile.OpenReadStream())   // Upload new file to Azure Blob Storage
-                        await newBlobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = shows.PhotoFile.ContentType });
-                    
-                    shows.PhotoFileName = newBlobClient.Uri.ToString(); // it updates the model in the URL 
-
-                    // Delete old blob if it exists
-                    var existingShow = await _context.Shows.AsNoTracking().FirstOrDefaultAsync(s => s.EventId == id);
-                    if (!string.IsNullOrEmpty(existingShow?.PhotoFileName) && existingShow.PhotoFileName.StartsWith("http")) // this will just fecthes the existing show from the Azure Storage
-                        if (Uri.TryCreate(existingShow.PhotoFileName, UriKind.Absolute, out var oldUri)) // it check if the existingShow.PhotoFilename is a valid URL
-                            await _containerClient.GetBlobClient(Path.GetFileName(oldUri.AbsolutePath)).DeleteIfExistsAsync(); // if it's valid, this will extracts the filename from the URL 
-                }
-                else
-                {
-                     // if there is no new photo it will just keep the old photo
-                    var existingShow = await _context.Shows.AsNoTracking().FirstOrDefaultAsync(s => s.EventId == id);
-                    shows.PhotoFileName = existingShow?.PhotoFileName;
-                }
-
-                // Save changes to database
                 try
                 {
                     _context.Update(shows);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException) // this will catch if the another user modified or delete
-                                                     // the same shows in the database 
+                catch (DbUpdateConcurrencyException)
                 {
                     if (!ShowsExists(shows.EventId))
                     {
@@ -207,19 +219,14 @@ namespace SwiftSeat.Controllers
                 // Delete image from Azure Blob Storage if it exists
                 if (!string.IsNullOrEmpty(shows.PhotoFileName))
                 {
-                    string blobName;
-                    if (Uri.TryCreate(shows.PhotoFileName, UriKind.Absolute, out var uri)) // this will check if the URl is 
-                    {
-                        blobName = Path.GetFileName(uri.AbsolutePath); // Extracts the fimename to the URL path
-                    }
-                    else
-                    {
-                        blobName = shows.PhotoFileName;
-                    }
-                    var blobClient = _containerClient.GetBlobClient(blobName); // Will create an client object for the blobClient
-                                                                              // in the Azure container 
-                    await blobClient.DeleteIfExistsAsync(); // this will Asynchronously deletes the blob from the
-                                                            // Azure Blob Storage 
+                    // Extract the blob name from the URL using string operations
+                    var lastSlashIndex = shows.PhotoFileName.LastIndexOf('/');
+                    var blobName = lastSlashIndex >= 0
+                        ? shows.PhotoFileName.Substring(lastSlashIndex + 1)
+                        : shows.PhotoFileName;
+
+                    var blobClient = _containerClient.GetBlobClient(blobName);
+                    await blobClient.DeleteIfExistsAsync();
                 }
 
                 _context.Shows.Remove(shows);
