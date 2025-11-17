@@ -1,0 +1,73 @@
+﻿@model SwiftSeat.Models.Purchases
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1 class="display-6 fw-bold text-primary mb-4 text-uppercase">Create</h1>
+
+<h4 class="lead mb-3">Purchase Tickets</h4>
+<hr />
+    <div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="NumberTickets" class="control-label"></label>
+                <input asp-for="NumberTickets" class="form-control" />
+                <span asp-validation-for="NumberTickets" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CustomerName" class="control-label"></label>
+                <input asp-for="CustomerName" class="form-control" />
+                <span asp-validation-for="CustomerName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CustomerEmail" class="control-label"></label>
+                <input asp-for="CustomerEmail" class="form-control" />
+                <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CustomerPhone" class="control-label"></label>
+                <input asp-for="CustomerPhone" class="form-control" />
+                <span asp-validation-for="CustomerPhone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CardNumber" class="control-label"></label>
+                <input asp-for="CardNumber" class="form-control" />
+                <span asp-validation-for="CardNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CardExpiry" class="control-label"></label>
+                <input asp-for="CardExpiry" class="form-control" />
+                <span asp-validation-for="CardExpiry" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CardCVV" class="control-label"></label>
+                <input asp-for="CardCVV" class="form-control" />
+                <span asp-validation-for="CardCVV" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EventId" class="control-label">Event</label>
+                <select asp-for="EventId" class ="form-control" asp-items="ViewBag.EventId">
+                    <option value="">-- Select an Event --</option>
+                </select>
+                <span asp-validation-for="EventId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

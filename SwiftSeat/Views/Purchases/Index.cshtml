@@ -1,0 +1,52 @@
+﻿@model IEnumerable<SwiftSeat.Models.Purchases>
+
+@{
+    ViewData["Title"] = "Purchases";
+}
+
+<div class="text-center my-5">
+    <h1 class="display-4">Purchase Management 🎫</h1>
+</div>
+
+<div class="container">
+    <h2 class="mb-4 text-md-start text-primary fw-bold text-uppercase">📋 All Purchases</h2>
+    <p>
+        <a asp-action="Create" class="btn btn-success fw-bold mb-3">Create New Purchase</a>
+    </p>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th class="px-3 py-2">Purchase ID</th>
+                    <th class="px-3 py-2">Number of Tickets</th>
+                    <th class="px-3 py-2">Customer Name</th>
+                    <th class="px-3 py-2">Customer Email</th>
+                    <th class="px-3 py-2">Customer Phone</th>
+                    <th class="px-3 py-2">Purchase Date</th>
+                    <th class="px-3 py-2">Event</th>
+                    <th class="px-3 py-2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var purchase in Model)
+                {
+                    <tr>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => purchase.PurchaseId)</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => purchase.NumberTickets)</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => purchase.CustomerName)</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => purchase.CustomerEmail)</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => purchase.CustomerPhone)</td>
+                        <td class="px-3 py-2">@purchase.PurchaseDate.ToString("MM/dd/yyyy h:mm tt")</td>
+                        <td class="px-3 py-2">@Html.DisplayFor(modelItem => purchase.Event.Title)</td>
+                        <td class="px-3 py-2 text-center">
+                            <a asp-action="Edit" asp-route-id="@purchase.PurchaseId" class="btn btn-primary btn-sm fw-bold me-1">Edit</a>
+                            <a asp-action="Details" asp-route-id="@purchase.PurchaseId" class="btn btn-info btn-sm fw-bold me-1 text-white">Details</a>
+                            <a asp-action="Delete" asp-route-id="@purchase.PurchaseId" class="btn btn-danger btn-sm fw-bold">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

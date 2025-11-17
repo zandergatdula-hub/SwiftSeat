@@ -1,0 +1,86 @@
+﻿@model SwiftSeat.Models.Purchases
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1 class="display-6 fw-bold text-primary mb-4 text-uppercase">Edit Purchase</h1>
+<h4 class="lead mb-3">Update purchase details</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <input type="hidden" asp-for="PurchaseId" />
+
+            <div class="form-group mb-3">
+                <label asp-for="NumberTickets" class="form-label fw-semibold"></label>
+                <input asp-for="NumberTickets" class="form-control" />
+                <span asp-validation-for="NumberTickets" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="CustomerName" class="form-label fw-semibold"></label>
+                <input asp-for="CustomerName" class="form-control" />
+                <span asp-validation-for="CustomerName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="CustomerEmail" class="form-label fw-semibold"></label>
+                <input asp-for="CustomerEmail" class="form-control" type="email" />
+                <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="CustomerPhone" class="form-label fw-semibold"></label>
+                <input asp-for="CustomerPhone" class="form-control" />
+                <span asp-validation-for="CustomerPhone" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="CardNumber" class="form-label fw-semibold"></label>
+                <input asp-for="CardNumber" class="form-control" />
+                <span asp-validation-for="CardNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="CardExpiry" class="form-label fw-semibold"></label>
+                <input asp-for="CardExpiry" class="form-control" placeholder="MM/YY" />
+                <span asp-validation-for="CardExpiry" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="CardCVV" class="form-label fw-semibold"></label>
+                <input asp-for="CardCVV" class="form-control" />
+                <span asp-validation-for="CardCVV" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PurchaseDate" class="form-label fw-semibold"></label>
+                <input asp-for="PurchaseDate" class="form-control" />
+                <span asp-validation-for="PurchaseDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="EventId" class="form-label fw-semibold">Event</label>
+                <select asp-for="EventId" class="form-control" asp-items="ViewBag.EventId"></select>
+                <span asp-validation-for="EventId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary px-4 py-2 fw-bold" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,47 @@
+﻿@model SwiftSeat.Models.Purchases
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1 class="display-6 fw-bold text-primary mb-4 text-uppercase">Purchase Details</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <dl class="row mb-4">
+            <dt class="col-sm-4 fw-semibold">Purchase ID</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.PurchaseId)</dd>
+
+            <dt class="col-sm-4 fw-semibold">Number of Tickets</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.NumberTickets)</dd>
+
+            <dt class="col-sm-4 fw-semibold">Customer Name</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.CustomerName)</dd>
+
+            <dt class="col-sm-4 fw-semibold">Customer Email</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.CustomerEmail)</dd>
+
+            <dt class="col-sm-4 fw-semibold">Customer Phone</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.CustomerPhone)</dd>
+
+            <dt class="col-sm-4 fw-semibold">Card Number</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.CardNumber)</dd>
+
+            <dt class="col-sm-4 fw-semibold">Card Expiry</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.CardExpiry)</dd>
+
+            <dt class="col-sm-4 fw-semibold">Card CVV</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.CardCVV)</dd>
+
+            <dt class="col-sm-4 fw-semibold">Purchase Date</dt>
+            <dd class="col-sm-8">@Model.PurchaseDate.ToString("MM/dd/yyyy h:mm tt")</dd>
+
+            <dt class="col-sm-4 fw-semibold">Event</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Event.Title)</dd>
+        </dl>
+
+        <a asp-action="Edit" asp-route-id="@Model.PurchaseId" class="btn btn-primary fw-bold px-4 py-2 me-2">Edit</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+    </div>
+</div>
