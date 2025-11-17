@@ -58,7 +58,7 @@ namespace SwiftSeat.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("NumberTickets,CustomerName,CustomerEmail,CustomerPhone,CardNumber,CardExpiry,CardCVV,EventId")] Purchases purchases)
         {
-            // Remove the Event navigation property from ModelState validation
+            
             ModelState.Remove("Event");
             
             if (ModelState.IsValid)
@@ -85,7 +85,7 @@ namespace SwiftSeat.Controllers
             {
                 return NotFound();
             }
-            ViewData["EventId"] = new SelectList(_context.Shows, "EventId", "EventId", purchases.EventId);
+            ViewData["EventId"] = new SelectList(_context.Shows, "EventId", "Title", purchases.EventId);
             return View(purchases);
         }
 
@@ -94,12 +94,15 @@ namespace SwiftSeat.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("NumberTickets,CustomerName,CustomerEmail,CustomerPhone,CardNumber,CardExpiry,CardCVV,EventId")] Purchases purchases)
+        public async Task<IActionResult> Edit(int id, [Bind("PurchaseId,NumberTickets,CustomerName,CustomerEmail,CustomerPhone,CardNumber,CardExpiry,CardCVV,PurchaseDate,EventId")] Purchases purchases)
         {
             if (id != purchases.PurchaseId)
             {
                 return NotFound();
             }
+
+            // Remove the Event navigation property from ModelState validation
+            ModelState.Remove("Event");
 
             if (ModelState.IsValid)
             {
@@ -121,7 +124,7 @@ namespace SwiftSeat.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EventId"] = new SelectList(_context.Shows, "EventId", "EventId", purchases.EventId);
+            ViewData["EventId"] = new SelectList(_context.Shows, "EventId", "Title", purchases.EventId);
             return View(purchases);
         }
 
